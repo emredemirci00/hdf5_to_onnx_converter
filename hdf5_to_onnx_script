@@ -1,0 +1,20 @@
+import sys
+import transformers # 3.0.2
+from transformers import AutoModelForSequenceClassification
+from transformers.convert_graph_to_onnx import convert
+
+def main():
+	predictor_path = sys.argv[1]
+	model_name = 'distilbert-base-uncased'
+	pt_path = predictor_path + '_pt'
+	pt_onnx_path = sys.argv[2] + '_onnx/model.onnx'
+	AutoModelForSequenceClassification.from_pretrained(predictor_path, 
+                                                  from_tf=True).save_pretrained(pt_path)
+	print("hdf5 saved as pytorch model succesfully to path -->",pt_path)
+
+	convert(framework='pt', model=pt_path,output=pt_onnx_path, opset=12, 
+        tokenizer=model_name, pipeline_name='sentiment-analysis')
+	print("onnx model saved succesfully to path -->", pt_onnx_path)
+
+if __name__ == '__main__':
+    main()
